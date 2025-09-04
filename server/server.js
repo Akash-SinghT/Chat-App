@@ -1,11 +1,14 @@
 import express from "express";
-
-const app = express();
+import { fileURLToPath } from "url";
 import http from "http";
 import path from "path";
 import { Server } from "socket.io";
-const __dirname = path.resolve();
+
+const app = express();
 app.use(express.json());
+// Needed because of ES modules (__dirname not available by default)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const server = http.createServer(app);
 const io = new Server(server); // io - input/ output  will handle socket or all my connextions
 // Handle Socket Connection
@@ -23,13 +26,14 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ Serve frontend from ./server/Public
-app.use(express.static(path.join(__dirname, "server", "Public")));
+// Serve static files from public
+app.use(express.static(path.join(__dirname, "public")));
 
+// Route to serve index.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "server", "Public", "index.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`server is listening at port 3000`);
+  console.log(`server is listening at port ${PORT}`);
 });
