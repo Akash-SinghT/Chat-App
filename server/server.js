@@ -23,11 +23,11 @@ io.on("connection", (socket) => {
   });
 });
 
-// Serve static frontend
-app.use(express.static(path.join(__dirname, "Public")));
-// other request will handle by this
+// ✅ Serve frontend from ./server/Public
+app.use(express.static(path.join(__dirname, "server", "Public")));
+
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "Public", "index.html"));
+  res.sendFile(path.join(__dirname, "server", "Public", "index.html"));
 });
 
 server.listen(3000, () => {
