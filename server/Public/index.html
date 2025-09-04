@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f7fa;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      h1 {
+        text-align: center;
+        padding: 1rem;
+        margin: 0;
+        background: #4a90e2;
+        color: white;
+      }
+
+      #messages {
+        flex: 1;
+        overflow-y: auto;
+        list-style: none;
+        margin: 0;
+        padding: 1rem;
+      }
+
+      #messages > li {
+        background: #fff;
+        padding: 0.6rem 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        max-width: 70%;
+        word-wrap: break-word;
+      }
+
+      #messages > li:nth-child(odd) {
+        background: #e9f3ff;
+        align-self: flex-start;
+      }
+
+      #form {
+        display: flex;
+        padding: 0.5rem;
+        background: #f0f0f0;
+      }
+
+      #message {
+        flex: 1;
+        padding: 0.7rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        outline: none;
+        font-size: 1rem;
+      }
+
+      #sendBtn {
+        margin-left: 0.5rem;
+        padding: 0.7rem 1.5rem;
+        background: #4a90e2;
+        border: none;
+        border-radius: 20px;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      #sendBtn:hover {
+        background: #357ab7;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chat App</h1>
+    <ul id="messages"></ul>
+
+    <form id="form" action="">
+      <input
+        type="text"
+        id="message"
+        placeholder="Enter Message..."
+        autocomplete="off"
+      />
+      <button id="sendBtn">Send</button>
+    </form>
+
+    <!-- Socket.io client script injected from server -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io(); // Build a socket connection with server
+
+      const allmessages = document.getElementById("messages");
+      const messageInput = document.getElementById("message");
+      const form = document.getElementById("form");
+
+      // Listen for form submission (better than "click", works with Enter too)
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+
+        if (message) {
+          socket.emit("usermessage", message);
+          // emit means send an event with some data from client → server
+
+          messageInput.value = ""; // clear input field after send
+        }
+      });
+
+      // .on means listen for events sent from server
+      socket.on("message", (message) => {
+        const list = document.createElement("li");
+        list.textContent = message;
+        allmessages.appendChild(list);
+
+        // Auto scroll to the latest message
+        allmessages.scrollTop = allmessages.scrollHeight;
+      });
+    </script>
+  </body>
+</html>
